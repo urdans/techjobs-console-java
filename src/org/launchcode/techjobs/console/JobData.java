@@ -7,9 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
@@ -20,6 +18,7 @@ public class JobData {
     private static Boolean isDataLoaded = false;
 
     private static ArrayList<HashMap<String, String>> allJobs;
+    private static ArrayList<HashMap<String, String>> allJobsCopy = null;
 
     /**
      * Fetch list of all values from loaded data,
@@ -42,6 +41,19 @@ public class JobData {
                 values.add(aValue);
             }
         }
+        //5 ways to do the same sort
+//        values.sort((o1, o2) -> o1.compareTo(o2));
+        values.sort(null);
+//        values.sort(new Comparator<String>() {
+//            @Override
+//            public int compare(String o1, String o2) {
+//                return o1.compareTo(o2);
+//            }
+//        });
+//        values.sort((String o1, String o2) -> o1.compareTo(o2));
+//        values.sort((o1, o2) -> {
+//            return o1.compareTo(o2);
+//        });
 
         return values;
     }
@@ -50,9 +62,31 @@ public class JobData {
 
         // load data, if not already loaded
         loadData();
-
-        return allJobs;
+//        return new ArrayList<HashMap<String, String>>(allJobs);  //this one doesn't clone, it just make a shallow copy
+//        return allJobs;
+        return cloneAllJobs(); //this one works, unintentionally!!!
     }
+
+    public static ArrayList<HashMap<String, String>> cloneAllJobs(){
+        if(allJobsCopy==null) {
+            allJobsCopy = new ArrayList<>();
+        }else{
+            allJobsCopy.clear();
+        }
+
+        for (HashMap<String,String> row: allJobs) {
+            HashMap<String, String> jobCopy = new HashMap<>();
+            for (Map.Entry<String, String> field: row.entrySet()) {
+                String fieldName = field.getKey();
+                String fieldData = field.getValue();
+                jobCopy.put(fieldName, fieldData);
+            }
+            allJobsCopy.add(jobCopy);
+        }
+
+        return allJobsCopy;
+    }
+
 
     /**
      * Returns results of search the jobs data by key/value, using
@@ -69,15 +103,34 @@ public class JobData {
 
         // load data, if not already loaded
         loadData();
-
+        value = value.toLowerCase();
         ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
 
         for (HashMap<String, String> row : allJobs) {
 
-            String aValue = row.get(column);
+            String aValue = row.get(column).toLowerCase();
 
             if (aValue.contains(value)) {
                 jobs.add(row);
+            }
+        }
+
+        return jobs;
+    }
+
+    /* finds a given string within the entire record */
+    public static ArrayList<HashMap<String, String>> findByValue(String word){
+        // load data, if not already loaded
+        loadData();
+        word = word.toLowerCase();
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+        for (HashMap<String,String> row: allJobs) {
+            for (Map.Entry<String, String> fieldData: row.entrySet()) {
+                String fieldDataLowerCase = fieldData.getValue().toLowerCase();
+                if(fieldDataLowerCase.contains(word)){
+                    jobs.add(row);
+                    break;
+                }
             }
         }
 

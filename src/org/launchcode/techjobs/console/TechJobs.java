@@ -2,6 +2,7 @@ package org.launchcode.techjobs.console;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -61,7 +62,8 @@ public class TechJobs {
                 String searchTerm = in.nextLine();
 
                 if (searchField.equals("all")) {
-                    System.out.println("Search all fields not yet implemented.");
+//                    System.out.println("Search all fields not yet implemented.");
+                    printJobs(JobData.findByValue(searchTerm));
                 } else {
                     printJobs(JobData.findByColumnAndValue(searchField, searchTerm));
                 }
@@ -93,8 +95,14 @@ public class TechJobs {
                 System.out.println("" + j + " - " + choices.get(choiceKeys[j]));
             }
 
-            choiceIdx = in.nextInt();
-            in.nextLine();
+            String choice = in.nextLine();
+            try {
+                choiceIdx = Integer.valueOf(choice.substring(0, 1));
+            } catch (Exception e) {
+                choiceIdx = -1;
+            }
+
+
 
             // Validate user's input
             if (choiceIdx < 0 || choiceIdx >= choiceKeys.length) {
@@ -110,7 +118,27 @@ public class TechJobs {
 
     // Print a list of jobs
     private static void printJobs(ArrayList<HashMap<String, String>> someJobs) {
-
-        System.out.println("printJobs is not implemented yet");
+        if(someJobs.isEmpty()){
+            System.out.println("\nNothing found!");
+            return;
+        }
+        for (HashMap<String,String> job: someJobs) {
+            System.out.println("******************************************************************");
+            for (Map.Entry<String, String> fieldData: job.entrySet()) {
+                System.out.println(fieldData.getKey() + ": " + fieldData.getValue());
+            }
+//uncomment the following lines to test that the copy was a deep one
+//            break;
+        }
+//        HashMap<String,String> j = someJobs.get(0);
+//        j.put("name", "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//        System.out.println("\n################################################################\n");
+//        for (HashMap<String,String> job: someJobs) {
+//            System.out.println("******************************************************************");
+//            for (Map.Entry<String, String> fieldData: job.entrySet()) {
+//                System.out.println(fieldData.getKey() + ": " + fieldData.getValue());
+//            }
+//            break;
+//        }
     }
 }
